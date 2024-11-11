@@ -1,12 +1,49 @@
 ﻿<Window x:Class="WebcamApp.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Webcam Viewer" Height="300" Width="400" WindowStyle="None" Topmost="True"
-        MouseLeftButtonDown="Window_MouseLeftButtonDown" AllowsTransparency="True" Background="Transparent">
-    <Grid Background="White" Margin="10">
-        <Button Content="X" Width="25" Height="25" HorizontalAlignment="Right" VerticalAlignment="Top" 
-                Margin="0,0,10,0" Click="CloseButton_Click"/>
-        <ComboBox Name="CameraSelector" HorizontalAlignment="Left" VerticalAlignment="Top" Width="200" Margin="10"/>
-        <Image Name="VideoView" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="10,40,10,10"/>
-    </Grid>
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:WebcamApp"
+        Title="Webcam Viewer" Height="320" Width="400" WindowStyle="None" Topmost="True"
+        
+        MouseLeftButtonDown="Window_MouseLeftButtonDown" AllowsTransparency="True" Background="Transparent"
+        MouseEnter="Window_MouseEnter" MouseLeave="Window_MouseLeave">
+    <Window.Resources>
+        <local:HalfSizeConverter x:Key="HalfSizeConverter"/>
+        <local:EllipseCenterConverter x:Key="EllipseCenterConverter" />
+    </Window.Resources>
+
+    <Border Name ="OutLine" BorderBrush="DarkBlue" BorderThickness="0" CornerRadius="20" 
+            Background="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Background, Mode=OneWay}">
+        <Grid Name ="mainwin" Background="{Binding RelativeSource={RelativeSource AncestorType=Border}, Path=Background, Mode=OneWay}" Margin="5">
+            <Button Name="CloseButton" Content="X" Width="20" Height="20" HorizontalAlignment="Right" VerticalAlignment="Top" 
+                    Margin="10,10,10,10" Click="CloseButton_Click" Visibility="Collapsed"/>
+            <ComboBox Name="CameraSelector" HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" 
+                      Margin="10" Visibility="Collapsed"/>
+            <!-- Wrapper Grid with star-sizes for proportional resizing -->
+            <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,20,0,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Image Name="VideoView" Stretch="Uniform" Loaded="VideoView_Loaded" SizeChanged="VideoView_SizeChanged">
+                    <Image.Clip>
+                        <EllipseGeometry>
+                            <EllipseGeometry.Center>
+                                <MultiBinding Converter="{StaticResource EllipseCenterConverter}">
+                                    <Binding ElementName="VideoView" Path="ActualWidth"/>
+                                    <Binding ElementName="VideoView" Path="ActualHeight"/>
+                                </MultiBinding>
+                            </EllipseGeometry.Center>
+                            <EllipseGeometry.RadiusX>
+                                <Binding ElementName="VideoView" Path="ActualWidth" Converter="{StaticResource HalfSizeConverter}"/>
+                            </EllipseGeometry.RadiusX>
+                            <EllipseGeometry.RadiusY>
+                                <Binding ElementName="VideoView" Path="ActualHeight" Converter="{StaticResource HalfSizeConverter}"/>
+                            </EllipseGeometry.RadiusY>
+                        </EllipseGeometry>
+                    </Image.Clip>
+                </Image>
+            </Grid>
+        </Grid>
+    </Border>
 </Window>
